@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CONSUMER
+  REVIEWER
+}
+
+enum ComplaintStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  fullName  String   @map("full_name")
+  role      UserRole @default(CONSUMER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  complaints Complaint[]
+  comments   Comment[]
+
+  @@map("users")
+}
+
+model Complaint {
+  id          Int @id @default(autoincrement())
+  title       String
+  description String
+  status      ComplaintStatus @default(PENDING)
+  consumerId  Int             @map("consumer_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  consumer User      @relation(fields: [consumerId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@map("complaints")
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  content     String
+  complaintId Int      @map("complaint_id")
+  userId      Int      @map("user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  complaint Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}

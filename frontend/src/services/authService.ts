@@ -1,0 +1,128 @@
+import { apiService } from './api';
+import { User, LoginCredentials, RegisterCredentials } from '../types/user.types';
+import { API_ENDPOINTS } from '../utils/constants';
+
+interface AuthResponse {
+  user: User;
+  token: string;
+}
+
+interface RegisterResponse {
+  message: string;
+}
+
+class AuthService {
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    try {
+      const response = await apiService.post<AuthResponse>(
+        API_ENDPOINTS.AUTH.LOGIN,
+        credentials
+      );
+      return response; // removed .data
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async register(credentials: RegisterCredentials): Promise<RegisterResponse> {
+    try {
+      const response = await apiService.post<RegisterResponse>(
+        API_ENDPOINTS.AUTH.REGISTER,
+        credentials
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async verifyToken(token: string): Promise<User> {
+    try {
+      const response = await apiService.get<{ user: User }>(
+        API_ENDPOINTS.USERS.PROFILE,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async refreshToken(): Promise<AuthResponse> {
+    try {
+      const response = await apiService.post<AuthResponse>(
+        API_ENDPOINTS.AUTH.REFRESH
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async logout(): Promise<void> {
+    try {
+      await apiService.post(API_ENDPOINTS.AUTH.LOGOUT);
+    } catch (error) {
+      console.error('Logout failed on server:', error);
+    }
+  }
+
+  async updateProfile(userData: Partial<User>): Promise<User> {
+    try {
+      const response = await apiService.put<{ user: User }>(
+        API_ENDPOINTS.USERS.UPDATE,
+        userData
+      );
+      return response.user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getProfile(): Promise<User> {
+    try {
+      const response = await apiService.get<{ user: User }>(
+        API_ENDPOINTS.USERS.PROFILE
+      );
+      return response.user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    try {
+      await apiService.post('/auth/change-password', {
+        currentPassword,
+        newPassword,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async resetPassword(email: string): Promise<void> {
+    try {
+      await apiService.post('/auth/reset-password', { email });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async confirmResetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      await apiService.post('/auth/confirm-reset-password', {
+        token,
+        newPassword,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+}
+
+export const authService = new AuthService();
