@@ -31,6 +31,7 @@ const Landing: React.FC = () => {
       [name]: value,
     }));
   };
+
   return (
     <div className="landing-container">
       <header className="landing-header">
@@ -54,12 +55,12 @@ const Landing: React.FC = () => {
               <h1><span className="brand-name">PunishSmart</span><br />Complaint Portal</h1>
               <p>Streamline your complaint management process with our intelligent portal. Submit, track, and resolve complaints efficiently with complete transparency.</p>
               <div className="hero-buttons">
-            <Link to="/register" className="btn-get-started">Get Started Free</Link>
-            <Link to="/login" className="btn-sign-in">Sign In</Link>
-          </div>
+                <Link to="/register" className="btn-get-started">Get Started Free</Link>
+                <a href="#login-form" className="btn-sign-in">Sign In</a>
+              </div>
             </div>
             <div className="hero-image">
-              <div className="login-card">
+              <div className="login-card" id="login-form">
                 <h2>Welcome to PunishSmart</h2>
                 {error && <div className="error-message">{error}</div>}
                 <form className="login-form" onSubmit={handleLogin}>
@@ -99,7 +100,7 @@ const Landing: React.FC = () => {
                         />
                         <label htmlFor="remember">Remember Me</label>
                       </div>
-                      <Link to="/forgot-password" className="forgot-password">Forgot Password?</Link>
+                      <a href="#forgot-password" className="forgot-password">Forgot Password?</a>
                     </div>
                   </div>
                   <button 
@@ -171,7 +172,7 @@ const Landing: React.FC = () => {
       </main>
 
       <footer className="landing-footer">
-        <p>&copy; 2023 PunishSmart. All rights reserved.</p>
+        <p>&copy; 2025 PunishSmart. All rights reserved.</p>
       </footer>
     </div>
   );

@@ -17,8 +17,8 @@
 
 .main-content {
   flex: 1;
-  padding: 25px;
-  max-width: 1400px;
+  padding: 2px;
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto;
   animation: fadeIn 0.5s ease-in-out;

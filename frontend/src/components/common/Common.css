@@ -1,7 +1,7 @@
 .header {
   background: white;
   border-bottom: 1px solid #ddd;
-  padding: 0 20px;
+  padding: 0 0px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
@@ -19,11 +19,11 @@
 }
 
 .logo {
-  color: #667eea;
+  color: #eab166;
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f6cba8 0%, #e4a252 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
@@ -111,7 +111,6 @@
   100% { transform: rotate(360deg); }
 }
 
-/* src/components/Layout/Layout.css */
 .layout {
   min-height: 100vh;
   display: flex;

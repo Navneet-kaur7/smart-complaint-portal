@@ -6,7 +6,8 @@ import './Dashboard.css';
 
 const ReviewerDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { complaints, loading } = useComplaints();
+const { complaints, loading, error } = useComplaints({}, 'REVIEWER');
+
 
   const getStatusCounts = () => {
     const counts = {

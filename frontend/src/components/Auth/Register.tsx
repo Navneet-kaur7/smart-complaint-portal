@@ -8,7 +8,7 @@ const Register: React.FC = () => {
   const [userData, setUserData] = useState<RegisterCredentials>({
     email: '',
     password: '',
-    full_name: '',
+    fullName: '',
     role: UserRole.CONSUMER,
   });
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -46,12 +46,12 @@ const Register: React.FC = () => {
         {error && <div className="error-message">{error}</div>}
         
         <div className="form-group">
-          <label htmlFor="full_name">Full Name</label>
+          <label htmlFor="fullName">Full Name</label>
           <input
-            id="full_name"
-            name="full_name"
+            id="fullName"
+            name="fullName"
             type="text"
-            value={userData.full_name}
+            value={userData.fullName}
             onChange={handleInputChange}
             required
             disabled={loading}

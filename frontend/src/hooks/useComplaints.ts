@@ -3,7 +3,11 @@ import { Complaint, ComplaintStatus } from '../types/complaint.types';
 import { complaintService, ComplaintFilters } from '../services/complaintService';
 import { PaginatedResponse } from '../types/api.types';
 
-export const useComplaints = (filters: ComplaintFilters = {}) => {
+// Add userRole parameter for clarity
+export const useComplaints = (
+  filters: ComplaintFilters = {},
+  userRole: 'REVIEWER' | 'CONSUMER'
+) => {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,17 +22,19 @@ export const useComplaints = (filters: ComplaintFilters = {}) => {
     try {
       setLoading(true);
       setError(null);
-      const response: PaginatedResponse<Complaint> = await complaintService.getComplaints({
-        ...filters,
-        ...newFilters,
-      });
-      setComplaints(response.data);
-      setPagination({
-        total: response.total,
-        page: response.page,
-        limit: response.limit,
-        totalPages: response.totalPages,
-      });
+      const response: PaginatedResponse<Complaint> = await complaintService.getComplaints(
+        { ...filters, ...newFilters },
+        userRole // Pass role explicitly
+      );
+
+      // Adjust if your API returns as { complaints, pagination } instead of { data, page, ... }
+setComplaints(response.data);
+setPagination({
+    total: response.pagination.total,
+    page: response.pagination.page,
+    limit: response.pagination.limit,
+    totalPages: response.pagination.totalPages,
+});
     } catch (err: any) {
       console.error('Error fetching complaints:', err);
       setError(err.message || 'Failed to fetch complaints. Please check the API connection.');
@@ -39,7 +45,7 @@ export const useComplaints = (filters: ComplaintFilters = {}) => {
 
   useEffect(() => {
     fetchComplaints();
-  }, []);
+  }, [userRole]); // refetch when role changes
 
   const createComplaint = async (complaintData: { title: string; description: string }) => {
     try {
@@ -59,10 +65,8 @@ export const useComplaints = (filters: ComplaintFilters = {}) => {
     try {
       setLoading(true);
       const updatedComplaint = await complaintService.updateComplaintStatus(id, { status });
-      setComplaints(prev => 
-        prev.map(complaint => 
-          complaint.id === id ? updatedComplaint : complaint
-        )
+      setComplaints(prev =>
+        prev.map(complaint => (complaint.id === id ? updatedComplaint : complaint))
       );
       return updatedComplaint;
     } catch (err: any) {

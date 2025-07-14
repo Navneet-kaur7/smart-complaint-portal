@@ -6,7 +6,7 @@ import './Dashboard.css';
 
 const ConsumerDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { complaints, loading } = useComplaints();
+  const { complaints, loading, error } = useComplaints({}, 'CONSUMER');
 
   const getStatusCounts = () => {
     const counts = {

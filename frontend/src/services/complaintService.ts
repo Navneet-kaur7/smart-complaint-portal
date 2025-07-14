@@ -1,4 +1,9 @@
-import { Complaint, CreateComplaintDto, UpdateComplaintDto, ComplaintStatus } from '../types/complaint.types';
+import {
+  Complaint,
+  CreateComplaintDto,
+  UpdateComplaintDto,
+  ComplaintStatus,
+} from '../types/complaint.types';
 import { PaginatedResponse } from '../types/api.types';
 import { apiService } from './api';
 
@@ -14,13 +19,15 @@ class ComplaintService {
     return await apiService.post<Complaint>('/complaints', complaintData);
   }
 
-  async getComplaints(filters: ComplaintFilters = {}): Promise<PaginatedResponse<Complaint>> {
+  async getComplaints(filters: ComplaintFilters = {}, role: 'REVIEWER' | 'CONSUMER'): Promise<PaginatedResponse<Complaint>> {
     const params = {
       ...filters,
       page: filters.page || 1,
       limit: filters.limit || 10,
     };
-    return await apiService.get<PaginatedResponse<Complaint>>('/complaints', params);
+
+    const endpoint = role === 'REVIEWER' ? '/complaints' : '/complaints/my-complaints';
+    return await apiService.get<PaginatedResponse<Complaint>>(endpoint, { params });
   }
 
   async getComplaintById(id: number): Promise<Complaint> {
@@ -34,9 +41,6 @@ class ComplaintService {
   async deleteComplaint(id: number): Promise<void> {
     await apiService.delete<void>(`/complaints/${id}`);
   }
-
-  async getMyComplaints(): Promise<Complaint[]> {
-    return await apiService.get<Complaint[]>('/complaints/my');
-  }
 }
+
 export const complaintService = new ComplaintService();

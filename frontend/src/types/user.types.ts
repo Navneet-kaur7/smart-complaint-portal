@@ -20,6 +20,6 @@ export interface LoginCredentials {
 export interface RegisterCredentials {
   email: string;
   password: string;
-  full_name: string;
+  fullName: string;
   role: UserRole;
 }

@@ -12,17 +12,22 @@ const ComplaintList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
   const { user } = useAuth();
-  const { 
-    complaints, 
-    loading, 
-    error, 
-    updateComplaintStatus, 
-    deleteComplaint, 
-    refetch 
-  } = useComplaints({
+const { 
+  complaints, 
+  loading, 
+  error, 
+  updateComplaintStatus, 
+  deleteComplaint, 
+  refetch 
+} = useComplaints(
+  {
     status: statusFilter || undefined,
     search: searchQuery || undefined,
-  });
+  },
+  user?.role || 'CONSUMER'  // default to CONSUMER if user or role undefined
+);
+
+
 
   const handleStatusUpdate = async (id: number, status: ComplaintStatus) => {
     try {
