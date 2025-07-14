@@ -34,35 +34,20 @@ class ComplaintService {
         page: filters.page || 1,
         limit: filters.limit || 10,
       };
-
+  
       console.log('Fetching complaints with params:', params, 'Role:', role);
-
-      // Try different endpoint patterns your backend might be using
+  
       let endpoint = '/complaints';
       
-      // If your backend has specific endpoints for different roles
       if (role === 'CONSUMER') {
-        // Try common patterns for user-specific complaints
-        endpoint = '/complaints/my'; // or '/user/complaints' or '/complaints/mine'
+        endpoint = '/complaints/my-complaints';  // Correct full endpoint for consumer complaints
       }
       
       console.log('Using endpoint:', endpoint);
       
-      try {
-        const response = await apiService.get<PaginatedResponse<Complaint>>(endpoint, params);
-        console.log('Complaints fetched:', response);
-        return response;
-      } catch (error: any) {
-        // If the role-specific endpoint fails, fallback to general endpoint
-        if (error.statusCode === 404 && role === 'CONSUMER') {
-          console.log('Role-specific endpoint not found, trying general endpoint');
-          endpoint = '/complaints';
-          const response = await apiService.get<PaginatedResponse<Complaint>>(endpoint, params);
-          console.log('Complaints fetched from fallback:', response);
-          return response;
-        }
-        throw error;
-      }
+      const response = await apiService.get<PaginatedResponse<Complaint>>(endpoint, params);
+      console.log('Complaints fetched:', response);
+      return response;
     } catch (error) {
       console.error('Error fetching complaints:', error);
       throw error;
