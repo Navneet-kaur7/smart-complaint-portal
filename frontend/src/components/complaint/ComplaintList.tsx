@@ -47,7 +47,7 @@ const ComplaintList: React.FC = () => {
   };
 
   if (loading) return <div className="loading">Loading complaints...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (error) return <div className="error">Error: {error}<br/><small>Please make sure the backend server is running at http://localhost:3001</small></div>;
 
   return (
     <div className="complaint-list-container">

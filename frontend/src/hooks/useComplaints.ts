@@ -30,7 +30,8 @@ export const useComplaints = (filters: ComplaintFilters = {}) => {
         totalPages: response.totalPages,
       });
     } catch (err: any) {
-      setError(err.message);
+      console.error('Error fetching complaints:', err);
+      setError(err.message || 'Failed to fetch complaints. Please check the API connection.');
     } finally {
       setLoading(false);
     }

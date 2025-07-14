@@ -9,6 +9,7 @@ import Register from './components/Auth/Register';
 import ConsumerDashboard from './components/Dashboard/ConsumerDashboard';
 import ReviewerDashboard from './components/Dashboard/ReviewerDashboard';
 import Loading from './components/common/Loading';
+import Landing from './components/landing/Landing';
 import './App.css';
 
 // Protected Route Component
@@ -84,7 +85,7 @@ const AppRouter: React.FC = () => {
           element={
             isAuthenticated ? 
             <Navigate to="/dashboard" replace /> : 
-            <Navigate to="/login" replace />
+            <Landing />
           } 
         />
       </Routes>

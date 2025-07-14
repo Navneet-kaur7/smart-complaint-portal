@@ -2,6 +2,11 @@
   background: white;
   border-bottom: 1px solid #ddd;
   padding: 0 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .header-content {
@@ -17,6 +22,11 @@
   color: #667eea;
   margin: 0;
   font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
 }
 
 .header-right {
@@ -26,37 +36,54 @@
 }
 
 .user-info {
-  color: #666;
-  font-weight: 500;
+  color: #555;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-info::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #4CAF50;
+  border-radius: 50%;
 }
 
 .logout-btn {
   background: #dc3545;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background 0.3s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
 .logout-btn:hover {
   background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
 }
 
 .footer {
   background: #f8f9fa;
   border-top: 1px solid #ddd;
-  padding: 20px;
-  margin-top: 40px;
+  padding: 25px;
+  margin-top: 60px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .footer-content {
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
-  color: #666;
+  color: #555;
+  font-weight: 500;
 }
 
 .loading-container {
@@ -64,17 +91,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 60px;
+  min-height: 300px;
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(102, 126, 234, 0.2);
   border-top: 4px solid #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
 }
 
 @keyframes spin {

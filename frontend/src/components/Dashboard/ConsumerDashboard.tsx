@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useComplaints } from '../../hooks/useComplaints';
 import { useAuth } from '../../hooks/useAuth';
 import ComplaintList from '../complaint/ComplaintList';
@@ -36,6 +36,14 @@ const ConsumerDashboard: React.FC = () => {
 
   const statusCounts = getStatusCounts();
 
+  useEffect(() => {
+    // Trigger animation when component mounts
+    const dashboard = document.querySelector('.dashboard');
+    if (dashboard) {
+      dashboard.classList.add('animate');
+    }
+  }, []);
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -43,7 +51,7 @@ const ConsumerDashboard: React.FC = () => {
         <p>Consumer Dashboard</p>
       </div>
 
-      <div className="dashboard-stats">
+      <div className="dashboard-stats" data-aos="fade-up">
         <div className="stat-card">
           <h3>Pending</h3>
           <p className="stat-number">{statusCounts.pending}</p>
