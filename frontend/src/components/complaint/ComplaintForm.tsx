@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useComplaints } from '../../hooks/useComplaints';
+import { useAuth } from '../../hooks/useAuth';
 import './Complaint.css';
-
 
 interface ComplaintFormProps {
   onClose: () => void;
@@ -13,11 +13,8 @@ const ComplaintForm: React.FC<ComplaintFormProps> = ({ onClose, onSuccess }) => 
     title: '',
     description: '',
   });
-// TODO: Replace this with your actual user retrieval logic (e.g., from context or props)
-const user = { role: 'CONSUMER' }; // Temporary fallback user object
-
- const { createComplaint, loading } = useComplaints({}, userRole || 'CONSUMER');
-
+  const { user } = useAuth();
+  const { createComplaint, loading } = useComplaints({}, user?.role || 'CONSUMER');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

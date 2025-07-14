@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useComplaints } from '../../hooks/useComplaints';
 import { ComplaintStatus } from '../../types/complaint.types';
 import ComplaintCard from './ComplaintCard';
@@ -11,23 +11,32 @@ const ComplaintList: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
-  const { user } = useAuth();
-const { 
-  complaints, 
-  loading, 
-  error, 
-  updateComplaintStatus, 
-  deleteComplaint, 
-  refetch 
-} = useComplaints(
-  {
+  const { user, isAuthenticated } = useAuth();
+
+  // Create filters object that updates when state changes
+  const filters = {
     status: statusFilter || undefined,
     search: searchQuery || undefined,
-  },
-  user?.role || 'CONSUMER'  // default to CONSUMER if user or role undefined
-);
+  };
 
+  const { 
+    complaints, 
+    loading, 
+    error, 
+    updateComplaintStatus, 
+    deleteComplaint, 
+    refetch 
+  } = useComplaints(
+    filters,
+    user?.role || 'CONSUMER'
+  );
 
+  // Debug logging
+  useEffect(() => {
+    console.log('User:', user);
+    console.log('Is Authenticated:', isAuthenticated);
+    console.log('Current filters:', filters);
+  }, [user, isAuthenticated, statusFilter, searchQuery]);
 
   const handleStatusUpdate = async (id: number, status: ComplaintStatus) => {
     try {
@@ -49,10 +58,27 @@ const {
 
   const handleFormSuccess = () => {
     refetch();
+    setShowForm(false);
   };
 
+  // Show loading if auth is still loading
+  if (!isAuthenticated) {
+    return <div className="loading">Please log in to view complaints...</div>;
+  }
+
   if (loading) return <div className="loading">Loading complaints...</div>;
-  if (error) return <div className="error">Error: {error}<br/><small>Please make sure the backend server is running at http://localhost:3001</small></div>;
+  
+  if (error) return (
+    <div className="error">
+      Error: {error}
+      <br/>
+      <small>Please make sure the backend server is running at http://localhost:3001</small>
+      <br/>
+      <button onClick={() => refetch()} className="btn-secondary">
+        Retry
+      </button>
+    </div>
+  );
 
   return (
     <div className="complaint-list-container">
@@ -99,6 +125,14 @@ const {
         {complaints.length === 0 ? (
           <div className="no-complaints">
             <p>No complaints found.</p>
+            {user?.role === UserRole.CONSUMER && (
+              <button 
+                onClick={() => setShowForm(true)}
+                className="btn-primary"
+              >
+                Create Your First Complaint
+              </button>
+            )}
           </div>
         ) : (
           complaints.map((complaint) => (

@@ -22,30 +22,39 @@ export const useComplaints = (
     try {
       setLoading(true);
       setError(null);
+      
+      const mergedFilters = { ...filters, ...newFilters };
+      console.log('Fetching complaints with filters:', mergedFilters, 'Role:', userRole);
+      
       const response: PaginatedResponse<Complaint> = await complaintService.getComplaints(
-        { ...filters, ...newFilters },
-        userRole // Pass role explicitly
+        mergedFilters,
+        userRole
       );
 
-      // Adjust if your API returns as { complaints, pagination } instead of { data, page, ... }
-setComplaints(response.data);
-setPagination({
-    total: response.pagination.total,
-    page: response.pagination.page,
-    limit: response.pagination.limit,
-    totalPages: response.pagination.totalPages,
-});
+      console.log('API Response:', response);
+
+      setComplaints(response.data || []);
+      setPagination({
+        total: response.pagination?.total || 0,
+        page: response.pagination?.page || 1,
+        limit: response.pagination?.limit || 10,
+        totalPages: response.pagination?.totalPages || 0,
+      });
     } catch (err: any) {
       console.error('Error fetching complaints:', err);
       setError(err.message || 'Failed to fetch complaints. Please check the API connection.');
+      setComplaints([]); // Reset to empty array on error
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchComplaints();
-  }, [userRole]); // refetch when role changes
+    // Only fetch if userRole is valid
+    if (userRole && (userRole === 'REVIEWER' || userRole === 'CONSUMER')) {
+      fetchComplaints();
+    }
+  }, [userRole, filters.status, filters.search]); // Include filters in dependency array
 
   const createComplaint = async (complaintData: { title: string; description: string }) => {
     try {

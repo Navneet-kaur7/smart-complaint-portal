@@ -26,6 +26,7 @@ class ApiService {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        console.log('API Request:', config.method?.toUpperCase(), config.url, 'params:', config.params);
         return config;
       },
       (error) => Promise.reject(error)
@@ -33,8 +34,12 @@ class ApiService {
 
     // Response interceptor to handle errors
     this.axiosInstance.interceptors.response.use(
-      (response: AxiosResponse) => response,
+      (response: AxiosResponse) => {
+        console.log('API Response:', response.status, response.data);
+        return response;
+      },
       (error) => {
+        console.error('API Error:', error);
         if (error.response?.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -47,43 +52,51 @@ class ApiService {
 
   public async get<T>(url: string, params?: any): Promise<T> {
     try {
+      console.log('API GET request:', url, 'with params:', params);
       const response = await this.axiosInstance.get<T>(url, { params });
       return response.data;
     } catch (error: any) {
+      console.error('API GET error:', error);
       throw this.handleError(error);
     }
   }
 
   public async post<T>(url: string, data?: any): Promise<T> {
     try {
+      console.log('API POST request:', url, 'with data:', data);
       const response = await this.axiosInstance.post<T>(url, data);
       return response.data;
     } catch (error: any) {
+      console.error('API POST error:', error);
       throw this.handleError(error);
     }
   }
 
   public async put<T>(url: string, data?: any): Promise<T> {
     try {
+      console.log('API PUT request:', url, 'with data:', data);
       const response = await this.axiosInstance.put<T>(url, data);
       return response.data;
     } catch (error: any) {
+      console.error('API PUT error:', error);
       throw this.handleError(error);
     }
   }
 
   public async delete<T>(url: string): Promise<T> {
     try {
+      console.log('API DELETE request:', url);
       const response = await this.axiosInstance.delete<T>(url);
       return response.data;
     } catch (error: any) {
+      console.error('API DELETE error:', error);
       throw this.handleError(error);
     }
   }
 
   private handleError(error: any): ApiError {
     const apiError: ApiError = {
-      message: error.response?.data?.message || 'An unexpected error occurred',
+      message: error.response?.data?.message || error.message || 'An unexpected error occurred',
       statusCode: error.response?.status || 500,
       error: error.response?.data?.error || 'Internal Server Error',
     };
