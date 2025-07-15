@@ -8,8 +8,8 @@ export interface User {
   email: string;
   fullName: string;
   role: UserRole;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LoginCredentials {

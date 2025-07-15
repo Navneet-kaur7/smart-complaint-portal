@@ -100,7 +100,7 @@ const Landing: React.FC = () => {
                         />
                         <label htmlFor="remember">Remember Me</label>
                       </div>
-                      <a href="#forgot-password" className="forgot-password">Forgot Password?</a>
+                      <Link to="/forgot-password" className="forgot-password">Forgot Password?</Link>
                     </div>
                   </div>
                   <button 

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Complaint, ComplaintStatus } from '../../types/complaint.types';
 import { UserRole } from '../../types/user.types';
 import { useAuth } from '../../hooks/useAuth';
+import CommentSection from '../comment/CommentSection';
 import './Complaint.css';
 
 interface ComplaintCardProps {
@@ -36,6 +37,8 @@ const ComplaintCard: React.FC<ComplaintCardProps> = ({ complaint, onStatusUpdate
       day: 'numeric',
     });
   };
+
+  const [showComments, setShowComments] = useState(false);
 
   return (
     <div className="complaint-card">
@@ -85,7 +88,18 @@ const ComplaintCard: React.FC<ComplaintCardProps> = ({ complaint, onStatusUpdate
             </button>
           </div>
         )}
+
+        <button 
+          className="btn-comment" 
+          onClick={() => setShowComments(!showComments)}
+        >
+          {showComments ? 'Hide Comments' : 'Show Comments'}
+        </button>
       </div>
+
+      {showComments && (
+        <CommentSection complaintId={complaint.id.toString()} />
+      )}
     </div>
   );
 };

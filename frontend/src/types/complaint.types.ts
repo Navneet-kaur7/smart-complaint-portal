@@ -15,7 +15,7 @@ export interface Complaint {
   consumer?: User;
   comments?: Comment[];
   createdAt: string;
-  updated_at: string;
+  updatedAt: string;
 }
 
 export interface CreateComplaintDto {
@@ -30,14 +30,14 @@ export interface UpdateComplaintDto {
 export interface Comment {
   id: number;
   content: string;
-  complaint_id: number;
-  user_id: number;
+  complaintId: number;
+  userId: number;
   user?: User;
   createdAt: string;
-  updated_at: string;
+  updatedAt: string;
 }
 
 export interface CreateCommentDto {
   content: string;
-  complaint_id: number;
+  complaintId: number;
 }

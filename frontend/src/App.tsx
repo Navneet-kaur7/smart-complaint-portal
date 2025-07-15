@@ -6,6 +6,7 @@ import { UserRole } from './types/user.types';
 import Layout from './components/layout/Layout';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import ForgotPassword from './components/auth/ForgotPassword';
 import ConsumerDashboard from './components/Dashboard/ConsumerDashboard';
 import ReviewerDashboard from './components/Dashboard/ReviewerDashboard';
 import Loading from './components/common/Loading';
@@ -70,6 +71,14 @@ const AppRouter: React.FC = () => {
             isAuthenticated ? 
             <Navigate to="/dashboard" replace /> : 
             <Register />
+          } 
+        />
+        <Route 
+          path="/forgot-password" 
+          element={
+            isAuthenticated ? 
+            <Navigate to="/dashboard" replace /> : 
+            <ForgotPassword />
           } 
         />
         <Route 
