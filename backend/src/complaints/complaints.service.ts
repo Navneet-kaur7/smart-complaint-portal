@@ -41,11 +41,26 @@ export class ComplaintsService {
     });
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(page: number = 1, limit: number = 10, status?: string, search?: string) {
     const skip = (page - 1) * limit;
+    
+    // Build where clause based on filters
+    const where: any = {};
+    
+    if (status) {
+      where.status = status;
+    }
+    
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
     
     const [complaints, total] = await Promise.all([
       this.prisma.complaint.findMany({
+        where,
         skip,
         take: limit,
         include: {
@@ -75,7 +90,7 @@ export class ComplaintsService {
           createdAt: 'desc',
         },
       }),
-      this.prisma.complaint.count(),
+      this.prisma.complaint.count({ where }),
     ]);
 
     return {
@@ -89,12 +104,26 @@ export class ComplaintsService {
     };
   }
 
-  async findByConsumerId(consumerId: number, page: number = 1, limit: number = 10) {
+  async findByConsumerId(consumerId: number, page: number = 1, limit: number = 10, status?: string, search?: string) {
     const skip = (page - 1) * limit;
+    
+    // Build where clause based on filters
+    const where: any = { consumerId };
+    
+    if (status) {
+      where.status = status;
+    }
+    
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
     
     const [complaints, total] = await Promise.all([
       this.prisma.complaint.findMany({
-        where: { consumerId },
+        where,
         skip,
         take: limit,
         include: {

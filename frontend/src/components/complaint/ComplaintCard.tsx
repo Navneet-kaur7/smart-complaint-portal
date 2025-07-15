@@ -49,9 +49,9 @@ const ComplaintCard: React.FC<ComplaintCardProps> = ({ complaint, onStatusUpdate
       <div className="complaint-body">
         <p>{complaint.description}</p>
         <div className="complaint-meta">
-          <span>Created: {formatDate(complaint.created_at)}</span>
+          <span>Created: {formatDate(complaint.createdAt)}</span>
           {complaint.consumer && (
-            <span>By: {complaint.consumer.full_name}</span>
+            <span>By: {complaint.consumer.fullName}</span>
           )}
         </div>
       </div>

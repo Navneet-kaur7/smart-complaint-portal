@@ -34,11 +34,11 @@ class ApiService {
           console.log('No token found in localStorage');
           console.log('Available keys:', Object.keys(localStorage));
         }
-        
-        // Automatically add /api prefix to all URLs if not already present
         if (config.url && !config.url.startsWith('/api')) {
-          config.url = `/api${config.url}`;
-        }
+  config.url = `/api${config.url}`;
+}
+        // The backend already has a global prefix 'api' set in main.ts
+        // Do not add /api prefix here as it would cause double prefixing
         
         console.log('API Request:', config.method?.toUpperCase(), config.url, 'params:', config.params);
         console.log('Base URL:', this.axiosInstance.defaults.baseURL);
@@ -109,6 +109,17 @@ class ApiService {
       return response.data;
     } catch (error: any) {
       console.error('API PUT error:', error);
+      throw this.handleError(error);
+    }
+  }
+
+  public async patch<T>(url: string, data?: any): Promise<T> {
+    try {
+      console.log('API PATCH request:', url, 'with data:', data);
+      const response = await this.axiosInstance.patch<T>(url, data);
+      return response.data;
+    } catch (error: any) {
+      console.error('API PATCH error:', error);
       throw this.handleError(error);
     }
   }

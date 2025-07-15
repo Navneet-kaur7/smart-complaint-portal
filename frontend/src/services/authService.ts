@@ -1,6 +1,6 @@
 import { apiService } from './api';
 import { User, LoginCredentials, RegisterCredentials } from '../types/user.types';
-import { API_ENDPOINTS } from '../utils/constants';
+import { API_ENDPOINTS, LOCAL_STORAGE_KEYS } from '../utils/constants';
 
 interface AuthResponse {
   user: User;
@@ -42,7 +42,7 @@ async login(credentials: LoginCredentials): Promise<AuthResponse> {
   async verifyToken(token: string): Promise<User> {
     try {
       const response = await apiService.get<{ user: User }>(
-        API_ENDPOINTS.USERS.PROFILE,
+        API_ENDPOINTS.AUTH.PROFILE,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,12 +55,17 @@ async login(credentials: LoginCredentials): Promise<AuthResponse> {
     }
   }
 
+  // Note: The backend doesn't have a refresh token endpoint
+  // This method is kept for future implementation
   async refreshToken(): Promise<AuthResponse> {
     try {
-      const response = await apiService.post<AuthResponse>(
-        API_ENDPOINTS.AUTH.REFRESH
-      );
-      return response;
+      // For now, we'll just verify the existing token
+      const token = localStorage.getItem(LOCAL_STORAGE_KEYS.TOKEN);
+      if (!token) {
+        throw new Error('No token found');
+      }
+      const user = await this.verifyToken(token);
+      return { user, token };
     } catch (error) {
       throw error;
     }
@@ -76,7 +81,7 @@ async login(credentials: LoginCredentials): Promise<AuthResponse> {
 
   async updateProfile(userData: Partial<User>): Promise<User> {
     try {
-      const response = await apiService.put<{ user: User }>(
+      const response = await apiService.patch<{ user: User }>(
         API_ENDPOINTS.USERS.UPDATE,
         userData
       );

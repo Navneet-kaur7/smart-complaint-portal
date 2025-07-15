@@ -43,7 +43,7 @@ export class ComplaintsController {
     @Query('status') status?: string,
     @Query('search') search?: string,
   ) {
-    return this.complaintsService.findAll(page, limit);
+    return this.complaintsService.findAll(page, limit, status, search);
   }
 
   @Get('my-complaints')
@@ -53,9 +53,11 @@ export class ComplaintsController {
     @Request() req,
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
   ) {
     const userId = req.user.userId;
-    return this.complaintsService.findByConsumerId(userId, page, limit);
+    return this.complaintsService.findByConsumerId(userId, page, limit, status, search);
   }
 
   @Get('stats')

@@ -6,6 +6,7 @@ import {
 } from '../types/complaint.types';
 import { PaginatedResponse } from '../types/api.types';
 import { apiService } from './api';
+import { API_ENDPOINTS } from '../utils/constants';
 
 export interface ComplaintFilters {
   status?: ComplaintStatus;
@@ -18,7 +19,7 @@ class ComplaintService {
   async createComplaint(complaintData: CreateComplaintDto): Promise<Complaint> {
     try {
       console.log('Creating complaint:', complaintData);
-      const response = await apiService.post<Complaint>('/complaints', complaintData);
+      const response = await apiService.post<Complaint>(API_ENDPOINTS.COMPLAINTS.BASE, complaintData);
       console.log('Complaint created:', response);
       return response;
     } catch (error) {
@@ -45,10 +46,10 @@ class ComplaintService {
   
       console.log('Fetching complaints with params:', params, 'Role:', role);
   
-      let endpoint = '/complaints';
+      let endpoint: string = API_ENDPOINTS.COMPLAINTS.BASE;
       
       if (role === 'CONSUMER') {
-        endpoint = '/complaints/my-complaints';
+        endpoint = API_ENDPOINTS.COMPLAINTS.MY_COMPLAINTS;
       }
       
       console.log('Using endpoint:', endpoint);
@@ -65,7 +66,7 @@ class ComplaintService {
   async getComplaintById(id: number): Promise<Complaint> {
     try {
       console.log('Fetching complaint by ID:', id);
-      const response = await apiService.get<Complaint>(`/complaints/${id}`);
+      const response = await apiService.get<Complaint>(`${API_ENDPOINTS.COMPLAINTS.BASE}/${id}`);
       console.log('Complaint fetched:', response);
       return response;
     } catch (error) {
@@ -77,7 +78,7 @@ class ComplaintService {
   async updateComplaintStatus(id: number, updateData: UpdateComplaintDto): Promise<Complaint> {
     try {
       console.log('Updating complaint status:', id, updateData);
-      const response = await apiService.put<Complaint>(`/complaints/${id}`, updateData);
+      const response = await apiService.patch<Complaint>(`${API_ENDPOINTS.COMPLAINTS.BASE}/${id}`, updateData);
       console.log('Complaint updated:', response);
       return response;
     } catch (error) {
@@ -89,7 +90,7 @@ class ComplaintService {
   async deleteComplaint(id: number): Promise<void> {
     try {
       console.log('Deleting complaint:', id);
-      await apiService.delete<void>(`/complaints/${id}`);
+      await apiService.delete<void>(`${API_ENDPOINTS.COMPLAINTS.BASE}/${id}`);
       console.log('Complaint deleted successfully');
     } catch (error) {
       console.error('Error deleting complaint:', error);

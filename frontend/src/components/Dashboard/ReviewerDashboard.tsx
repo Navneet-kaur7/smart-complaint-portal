@@ -47,7 +47,7 @@ const { complaints, loading, error } = useComplaints({}, 'REVIEWER');
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>Welcome, {user?.full_name}</h1>
+        <h1>Welcome, {user?.fullName}</h1>
         <p>Reviewer Dashboard</p>
       </div>
 

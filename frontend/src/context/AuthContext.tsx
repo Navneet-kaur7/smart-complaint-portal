@@ -66,7 +66,7 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   error: string | null;
-  isAuthenticated: boolean; // ✅ added
+  isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;

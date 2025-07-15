@@ -20,18 +20,19 @@ export const LOCAL_STORAGE_KEYS = {
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
-    REGISTER: '/api/auth/register',
-    REFRESH: '/api/auth/refresh',
-    LOGOUT: '/api/auth/logout'
+    REGISTER: '/auth/register',
+    PROFILE: '/auth/profile',
+    LOGOUT: '/auth/logout'
   },
   USERS: {
     PROFILE: '/users/profile',
-    UPDATE: '/users/update'
+    UPDATE: '/users/profile'
   },
   COMPLAINTS: {
     BASE: '/complaints',
     BY_USER: '/complaints/user',
-    UPDATE_STATUS: '/complaints/status'
+    UPDATE_STATUS: '/complaints/status',
+    MY_COMPLAINTS: '/complaints/my-complaints'
   },
   COMMENTS: {
     BASE: '/comments',

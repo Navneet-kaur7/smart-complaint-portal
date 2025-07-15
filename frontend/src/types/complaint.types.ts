@@ -14,7 +14,7 @@ export interface Complaint {
   consumerId: number;
   consumer?: User;
   comments?: Comment[];
-  created_at: string;
+  createdAt: string;
   updated_at: string;
 }
 
@@ -33,7 +33,7 @@ export interface Comment {
   complaint_id: number;
   user_id: number;
   user?: User;
-  created_at: string;
+  createdAt: string;
   updated_at: string;
 }
 
