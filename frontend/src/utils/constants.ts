@@ -12,30 +12,30 @@ export const USER_ROLES = {
 } as const;
 
 export const LOCAL_STORAGE_KEYS = {
-  TOKEN: 'auth_token',
+  TOKEN: 'access_token',
   USER: 'user_data',
-  THEME: 'theme_preference'
+  
 } as const;
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/api/auth/login',
+    LOGIN: '/auth/login',
     REGISTER: '/api/auth/register',
     REFRESH: '/api/auth/refresh',
     LOGOUT: '/api/auth/logout'
   },
   USERS: {
-    PROFILE: '/api/users/profile',
-    UPDATE: '/api/users/update'
+    PROFILE: '/users/profile',
+    UPDATE: '/users/update'
   },
   COMPLAINTS: {
-    BASE: '/api/complaints',
-    BY_USER: '/api/complaints/user',
-    UPDATE_STATUS: '/api/complaints/status'
+    BASE: '/complaints',
+    BY_USER: '/complaints/user',
+    UPDATE_STATUS: '/complaints/status'
   },
   COMMENTS: {
-    BASE: '/api/comments',
-    BY_COMPLAINT: '/api/comments/complaint'
+    BASE: '/comments',
+    BY_COMPLAINT: '/comments/complaint'
   }
 } as const;
 

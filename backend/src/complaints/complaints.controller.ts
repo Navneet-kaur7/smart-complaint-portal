@@ -1,4 +1,3 @@
-// backend/src/complaints/complaints.controller.ts
 import {
   Controller,
   Get,
@@ -20,6 +19,7 @@ import { UpdateComplaintDto } from './dto/update-complaint.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '@prisma/client'; // adjust if needed
 
 @Controller('complaints')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +27,7 @@ export class ComplaintsController {
   constructor(private readonly complaintsService: ComplaintsService) {}
 
   @Post()
-  @Roles('CONSUMER')
+  @Roles(UserRole.CONSUMER)
   @UseGuards(RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createComplaintDto: CreateComplaintDto, @Request() req) {
@@ -35,7 +35,7 @@ export class ComplaintsController {
   }
 
   @Get()
-  @Roles('REVIEWER')
+  @Roles(UserRole.REVIEWER)
   @UseGuards(RolesGuard)
   findAll(
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
@@ -46,29 +46,20 @@ export class ComplaintsController {
     return this.complaintsService.findAll(page, limit);
   }
 
-  
   @Get('my-complaints')
-  @Roles('CONSUMER')
+  @Roles(UserRole.CONSUMER)
   @UseGuards(RolesGuard)
-  findMyComplaints(
+  async getMyComplaints(
     @Request() req,
     @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
-    @Query('status') status?: string,
-    @Query('search') search?: string,
   ) {
-    console.log('🔥 my-complaints route hit:', {
-      userId: req.user.userId,
-      page,
-      limit,
-      status,
-      search
-    });
-    return this.complaintsService.findByConsumerId(req.user.userId, page, limit);
+    const userId = req.user.userId;
+    return this.complaintsService.findByConsumerId(userId, page, limit);
   }
 
   @Get('stats')
-  @Roles('REVIEWER')
+  @Roles(UserRole.REVIEWER)
   @UseGuards(RolesGuard)
   getStats() {
     return this.complaintsService.getComplaintStats();
@@ -98,4 +89,6 @@ export class ComplaintsController {
   remove(@Param('id', ParseIntPipe) id: number, @Request() req) {
     return this.complaintsService.remove(id, req.user.userId, req.user.role);
   }
+
+  
 }

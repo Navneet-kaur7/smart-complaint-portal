@@ -32,11 +32,10 @@ const ComplaintList: React.FC = () => {
   );
 
   // Debug logging
-  useEffect(() => {
-    console.log('User:', user);
-    console.log('Is Authenticated:', isAuthenticated);
-    console.log('Current filters:', filters);
-  }, [user, isAuthenticated, statusFilter, searchQuery]);
+ useEffect(() => {
+  console.log('Complaints received in ComplaintList:', complaints);
+}, [complaints]);
+
 
   const handleStatusUpdate = async (id: number, status: ComplaintStatus) => {
     try {

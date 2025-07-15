@@ -12,17 +12,20 @@ interface RegisterResponse {
 }
 
 class AuthService {
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    try {
-      const response = await apiService.post<AuthResponse>(
-        API_ENDPOINTS.AUTH.LOGIN,
-        credentials
-      );
-      return response; // removed .data
-    } catch (error) {
-      throw error;
-    }
+async login(credentials: LoginCredentials): Promise<AuthResponse> {
+  try {
+    const response = await apiService.post<{ access_token: string; user: User }>(
+      API_ENDPOINTS.AUTH.LOGIN,
+      credentials
+    );
+    return {
+      user: response.user,
+      token: response.access_token,
+    };
+  } catch (error) {
+    throw error;
   }
+}
 
   async register(credentials: RegisterCredentials): Promise<RegisterResponse> {
     try {

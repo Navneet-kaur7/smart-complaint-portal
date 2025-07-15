@@ -18,47 +18,33 @@ export const useComplaints = (
   });
 
   const fetchComplaints = async (newFilters: ComplaintFilters = {}) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const mergedFilters = { ...filters, ...newFilters };
-      console.log('Fetching complaints with filters:', mergedFilters, 'Role:', userRole);
-      
-      const response: PaginatedResponse<Complaint> = await complaintService.getComplaints(
-        mergedFilters,
-        userRole
-      );
+  try {
+    setLoading(true);
+    setError(null);
 
-      console.log('API Response:', response);
+    const mergedFilters = { ...filters, ...newFilters };
+    console.log('Fetching complaints with filters:', mergedFilters, 'Role:', userRole);
 
-      setComplaints(response.data || []);
-      setPagination({
-        total: response.pagination?.total || 0,
-        page: response.pagination?.page || 1,
-        limit: response.pagination?.limit || 10,
-        totalPages: response.pagination?.totalPages || 0,
-      });
-    } catch (err: any) {
-      console.error('Error fetching complaints:', err);
-      let errorMessage = 'Failed to fetch complaints.';
-      
-      if (err.statusCode === 404) {
-        errorMessage = 'Complaints endpoint not found. Please check if the backend server is running correctly.';
-      } else if (err.statusCode === 401) {
-        errorMessage = 'You are not authorized to view complaints. Please log in again.';
-      } else if (err.statusCode === 403) {
-        errorMessage = 'You do not have permission to view these complaints.';
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      setError(errorMessage);
-      setComplaints([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const response: PaginatedResponse<Complaint> = await complaintService.getComplaints(
+      mergedFilters,
+      userRole
+    );
+
+    console.log('API Response:', response);
+
+    setComplaints(response.complaints || []);  // <-- FIX HERE
+    setPagination({
+      total: response.pagination?.total || 0,
+      page: response.pagination?.page || 1,
+      limit: response.pagination?.limit || 10,
+      totalPages: response.pagination?.totalPages || 0,
+    });
+  } catch (err: any) {
+    // error handling
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     // Only fetch if userRole is valid

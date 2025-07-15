@@ -1,7 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ApiError } from '../types/api.types';
+import { LOCAL_STORAGE_KEYS } from '../utils/constants';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 class ApiService {
   private axiosInstance: AxiosInstance;
@@ -19,16 +21,30 @@ class ApiService {
   }
 
   private setupInterceptors() {
-    // Request interceptor to add auth token
+    // Request interceptor to add auth token and /api prefix
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('token');
+        // Try multiple possible token keys
+        const token = localStorage.getItem(LOCAL_STORAGE_KEYS.TOKEN);
+        
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          console.log('Added token to request:', token.substring(0, 20) + '...');
+        } else {
+          console.log('No token found in localStorage');
+          console.log('Available keys:', Object.keys(localStorage));
         }
+        
+        // Automatically add /api prefix to all URLs if not already present
+        if (config.url && !config.url.startsWith('/api')) {
+          config.url = `/api${config.url}`;
+        }
+        
         console.log('API Request:', config.method?.toUpperCase(), config.url, 'params:', config.params);
         console.log('Base URL:', this.axiosInstance.defaults.baseURL);
         console.log('Full URL:', `${this.axiosInstance.defaults.baseURL}${config.url}`);
+        console.log('Request headers:', config.headers);
+        
         return config;
       },
       (error) => Promise.reject(error)
@@ -44,18 +60,20 @@ class ApiService {
         console.error('API Error:', error);
         console.error('Error Details:', {
           message: error.message,
+          response: error.response?.data,
           status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
           url: error.config?.url,
           method: error.config?.method,
           baseURL: error.config?.baseURL
         });
         
         if (error.response?.status === 401) {
+          console.log('401 Unauthorized - clearing tokens and redirecting');
           localStorage.removeItem('token');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('auth_token');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          // window.location.href = '/login';
         }
         return Promise.reject(error);
       }
@@ -65,7 +83,6 @@ class ApiService {
   public async get<T>(url: string, params?: any): Promise<T> {
     try {
       console.log('API GET request:', url, 'with params:', params);
-      console.log('Base URL:', this.axiosInstance.defaults.baseURL);
       const response = await this.axiosInstance.get<T>(url, { params });
       return response.data;
     } catch (error: any) {
