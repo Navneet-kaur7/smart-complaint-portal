@@ -27,6 +27,8 @@ class ApiService {
           config.headers.Authorization = `Bearer ${token}`;
         }
         console.log('API Request:', config.method?.toUpperCase(), config.url, 'params:', config.params);
+        console.log('Base URL:', this.axiosInstance.defaults.baseURL);
+        console.log('Full URL:', `${this.axiosInstance.defaults.baseURL}${config.url}`);
         return config;
       },
       (error) => Promise.reject(error)
@@ -40,6 +42,16 @@ class ApiService {
       },
       (error) => {
         console.error('API Error:', error);
+        console.error('Error Details:', {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          url: error.config?.url,
+          method: error.config?.method,
+          baseURL: error.config?.baseURL
+        });
+        
         if (error.response?.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -53,6 +65,7 @@ class ApiService {
   public async get<T>(url: string, params?: any): Promise<T> {
     try {
       console.log('API GET request:', url, 'with params:', params);
+      console.log('Base URL:', this.axiosInstance.defaults.baseURL);
       const response = await this.axiosInstance.get<T>(url, { params });
       return response.data;
     } catch (error: any) {

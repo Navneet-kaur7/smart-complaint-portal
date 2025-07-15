@@ -3,7 +3,6 @@ import { Complaint, ComplaintStatus } from '../types/complaint.types';
 import { complaintService, ComplaintFilters } from '../services/complaintService';
 import { PaginatedResponse } from '../types/api.types';
 
-// Add userRole parameter for clarity
 export const useComplaints = (
   filters: ComplaintFilters = {},
   userRole: 'REVIEWER' | 'CONSUMER'
@@ -42,8 +41,20 @@ export const useComplaints = (
       });
     } catch (err: any) {
       console.error('Error fetching complaints:', err);
-      setError(err.message || 'Failed to fetch complaints. Please check the API connection.');
-      setComplaints([]); // Reset to empty array on error
+      let errorMessage = 'Failed to fetch complaints.';
+      
+      if (err.statusCode === 404) {
+        errorMessage = 'Complaints endpoint not found. Please check if the backend server is running correctly.';
+      } else if (err.statusCode === 401) {
+        errorMessage = 'You are not authorized to view complaints. Please log in again.';
+      } else if (err.statusCode === 403) {
+        errorMessage = 'You do not have permission to view these complaints.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+      setComplaints([]);
     } finally {
       setLoading(false);
     }
@@ -54,16 +65,18 @@ export const useComplaints = (
     if (userRole && (userRole === 'REVIEWER' || userRole === 'CONSUMER')) {
       fetchComplaints();
     }
-  }, [userRole, filters.status, filters.search]); // Include filters in dependency array
+  }, [userRole, filters.status, filters.search, filters.page]);
 
   const createComplaint = async (complaintData: { title: string; description: string }) => {
     try {
       setLoading(true);
+      setError(null);
       const newComplaint = await complaintService.createComplaint(complaintData);
       setComplaints(prev => [newComplaint, ...prev]);
       return newComplaint;
     } catch (err: any) {
-      setError(err.message);
+      const errorMessage = err.message || 'Failed to create complaint';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -73,13 +86,15 @@ export const useComplaints = (
   const updateComplaintStatus = async (id: number, status: ComplaintStatus) => {
     try {
       setLoading(true);
+      setError(null);
       const updatedComplaint = await complaintService.updateComplaintStatus(id, { status });
       setComplaints(prev =>
         prev.map(complaint => (complaint.id === id ? updatedComplaint : complaint))
       );
       return updatedComplaint;
     } catch (err: any) {
-      setError(err.message);
+      const errorMessage = err.message || 'Failed to update complaint status';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -89,10 +104,12 @@ export const useComplaints = (
   const deleteComplaint = async (id: number) => {
     try {
       setLoading(true);
+      setError(null);
       await complaintService.deleteComplaint(id);
       setComplaints(prev => prev.filter(complaint => complaint.id !== id));
     } catch (err: any) {
-      setError(err.message);
+      const errorMessage = err.message || 'Failed to delete complaint';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -124,7 +141,8 @@ export const useComplaint = (id: number) => {
       const response = await complaintService.getComplaintById(id);
       setComplaint(response);
     } catch (err: any) {
-      setError(err.message);
+      const errorMessage = err.message || 'Failed to fetch complaint';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,3 +1,4 @@
+// backend/src/complaints/complaints.controller.ts
 import {
   Controller,
   Get,
@@ -37,20 +38,32 @@ export class ComplaintsController {
   @Roles('REVIEWER')
   @UseGuards(RolesGuard)
   findAll(
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
   ) {
     return this.complaintsService.findAll(page, limit);
   }
 
+  
   @Get('my-complaints')
   @Roles('CONSUMER')
   @UseGuards(RolesGuard)
   findMyComplaints(
     @Request() req,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 10,
+    @Query('status') status?: string,
+    @Query('search') search?: string,
   ) {
+    console.log('🔥 my-complaints route hit:', {
+      userId: req.user.userId,
+      page,
+      limit,
+      status,
+      search
+    });
     return this.complaintsService.findByConsumerId(req.user.userId, page, limit);
   }
 
@@ -63,8 +76,6 @@ export class ComplaintsController {
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
-    // Both consumers and reviewers can view complaint details
-    // But we'll add authorization logic in the service if needed
     return this.complaintsService.findOne(id);
   }
 

@@ -30,17 +30,25 @@ class ComplaintService {
   async getComplaints(filters: ComplaintFilters = {}, role: 'REVIEWER' | 'CONSUMER'): Promise<PaginatedResponse<Complaint>> {
     try {
       const params = {
-        ...filters,
+        status: filters.status,
+        search: filters.search,
         page: filters.page || 1,
         limit: filters.limit || 10,
       };
+
+      // Remove undefined values to avoid sending them as query parameters
+      Object.keys(params).forEach(key => {
+        if (params[key as keyof typeof params] === undefined) {
+          delete params[key as keyof typeof params];
+        }
+      });
   
       console.log('Fetching complaints with params:', params, 'Role:', role);
   
       let endpoint = '/complaints';
       
       if (role === 'CONSUMER') {
-        endpoint = '/complaints/my-complaints';  // Correct full endpoint for consumer complaints
+        endpoint = '/complaints/my-complaints';
       }
       
       console.log('Using endpoint:', endpoint);
