@@ -1,35 +1,35 @@
-# Stage 1: Build the application
-FROM node:18-alpine AS build
+# Use Node.js LTS as the base image
+FROM node:18-alpine as build
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps
+# Install dependencies with legacy peer deps to avoid conflicts
+RUN npm install --legacy-peer-deps
 
-# Copy source code
+# Copy the rest of the application code
 COPY . .
 
-# Build the app
+# Build the application
 RUN npm run build
 
-# Stage 2: Serve the application with Nginx
+# Production stage
 FROM nginx:alpine
 
-# Copy built assets from the build stage
+# Install wget for health check
+RUN apk add --no-cache wget
+
+# Copy the build output to replace the default nginx contents
 COPY --from=build /app/build /usr/share/nginx/html
 
 # Copy custom nginx config if needed
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port
+# Expose port 80
 EXPOSE 80
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:80 || exit 1
-
-# Start nginx
+# Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]

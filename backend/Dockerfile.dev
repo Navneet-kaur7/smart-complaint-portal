@@ -1,0 +1,29 @@
+# Use Node.js LTS as the base image
+FROM node:18-alpine
+
+# Install netcat for wait-for-it script and wget for health check
+RUN apk add --no-cache netcat-openbsd wget
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies with legacy peer deps to avoid conflicts
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the application code
+COPY . .
+
+# Make wait-for-it script executable
+RUN chmod +x wait-for-it.sh
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Expose the port the app runs on
+EXPOSE 3001
+
+# Command to run the application in development mode with hot reloading
+CMD ["./wait-for-it.sh", "postgres", "5432", "npm", "run", "start:dev"]

@@ -1,25 +1,23 @@
-# Build stage
-FROM node:18-slim AS builder
+# Use Node.js LTS as the base image with Debian instead of Alpine
+FROM node:18
+
+# Install netcat for wait-for-it script, wget for health check, and postgresql-client for database connection
+RUN apt-get update && apt-get install -y netcat-openbsd wget postgresql-client
 
 # Set working directory
 WORKDIR /app
 
-# Install OpenSSL and other required system dependencies
-RUN apt-get update -y && \
-    apt-get install -y openssl ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy package files
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Remove lock file to avoid version conflicts
-RUN rm -f package-lock.json
-
-# Install all dependencies (including dev dependencies for build)
+# Install dependencies with legacy peer deps to avoid conflicts
 RUN npm install --legacy-peer-deps
 
-# Copy source code
+# Copy the rest of the application code
 COPY . .
+
+# Make wait-for-it script executable
+RUN chmod +x wait-for-it.sh
 
 # Generate Prisma client
 RUN npx prisma generate
@@ -27,41 +25,11 @@ RUN npx prisma generate
 # Build the application
 RUN npm run build
 
-# Verify the build output
+# Verify the build output exists
 RUN ls -la dist/
 
-# Production stage
-FROM node:18-slim AS production
-
-# Set working directory
-WORKDIR /app
-
-# Install OpenSSL and other required system dependencies
-RUN apt-get update -y && \
-    apt-get install -y openssl ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy package files
-COPY package*.json ./
-
-# Remove lock file to avoid version conflicts
-RUN rm -f package-lock.json
-
-# Install only production dependencies
-RUN npm install --only=production --legacy-peer-deps
-
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-
-# Copy Prisma schema for migrations
-COPY --from=builder /app/prisma ./prisma
-
-# Verify the copied files
-RUN ls -la /app && ls -la /app/dist
-
-# Expose port
+# Expose the port the app runs on
 EXPOSE 3001
 
-# Start the application
-CMD ["node", "dist/main"]
+# Command to run the application
+CMD ["./wait-for-it.sh", "postgres", "5432", "node", "dist/src/main"]

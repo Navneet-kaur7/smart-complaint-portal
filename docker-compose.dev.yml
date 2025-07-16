@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # Frontend service - development mode
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:${BACKEND_PORT:-3001}/api
+      - CHOKIDAR_USEPOLLING=true
+    command: npm start
+
+  # Backend service - development mode
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run start:dev
+    environment:
+      - NODE_ENV=development
+
+  # PostgreSQL Database - development mode
+  postgres:
+    volumes:
+      - ./database/dev-init.sql:/docker-entrypoint-initdb.d/init.sql

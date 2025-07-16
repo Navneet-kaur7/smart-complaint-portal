@@ -1,68 +1,78 @@
+version: '3.8'
+
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    container_name: complaint-portal-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: complaint_portal
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password123}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/migration.sql:/docker-entrypoint-initdb.d/migration.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - complaint-portal-network
-
-  # Backend API
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: complaint-portal-backend
-    restart: unless-stopped
-    ports:
-      - "3001:3001"
-    environment:
-      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-password123}@postgres:5432/complaint_portal
-      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
-      JWT_EXPIRES_IN: 24h
-      PORT: 3001
-      NODE_ENV: ${NODE_ENV:-production}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - complaint-portal-network
-
-  # Frontend React App
+  # Frontend service
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: complaint-portal-frontend
-    restart: unless-stopped
     ports:
-      - "80:80"
-    environment:
-      REACT_APP_API_URL: ${API_URL:-http://localhost:3001}
+      - "3000:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
-      - complaint-portal-network
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    profiles: ["prod", "default"]
 
-volumes:
-  postgres_data:
-    name: complaint-portal-db-data
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${BACKEND_PORT:-3001}:${BACKEND_PORT:-3001}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/complaint_portal?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - PORT=${BACKEND_PORT:-3001}
+      - NODE_ENV=${NODE_ENV:-production}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:${BACKEND_PORT:-3001}/api"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    profiles: ["prod", "default"]
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=complaint_portal
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    profiles: ["prod", "default", "dev"]
 
 networks:
-  complaint-portal-network:
+  app-network:
     driver: bridge
-    name: complaint-portal-network
+
+volumes:
+  postgres-data:

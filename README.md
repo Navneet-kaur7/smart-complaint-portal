@@ -35,93 +35,82 @@ cd smart-complaint-portal
 
 ### Configuration
 
-The application uses environment variables for configuration. You can modify these in the `.env` file:
+The application uses environment variables for configuration. These can be set in a `.env` file at the root of the project:
+
+1. Copy the example environment file to create your own:
+
+```bash
+cp .env.example .env
+```
+
+2. Edit the `.env` file to customize your configuration:
 
 ```
-# Database Configuration
-DB_PASSWORD=password123
-
-# JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-
-# API URL Configuration
-API_URL=http://localhost:3001/api
-
-# Node Environment
+# Backend Environment Variables
+BACKEND_PORT=3001
 NODE_ENV=production
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+FRONTEND_URL=http://localhost:3000
+
+# Database Environment Variables
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=complaint_portal
+DB_PORT=5432
+DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres:${DB_PORT}/${DB_NAME}?schema=public
 ```
+
+The `docker-compose.yml` file is configured to use these environment variables with fallback values if they're not set. This allows you to customize the configuration without modifying the docker-compose.yml file directly.
 
 ### Running the Application
 
-#### Using Convenience Scripts
+#### Development Environment
 
-For Windows users:
-```powershell
-.\run.ps1
-```
-
-For Linux/Mac users:
-```bash
-chmod +x ./run.sh
-./run.sh
-```
-
-#### Manual Start
-
-Start all services using Docker Compose:
+For development with hot-reloading:
 
 ```bash
+# Create a .env file for development
+cp .env.example .env
+
+# Start all services in development mode
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+
+#### Production Environment
+
+For production deployment:
+
+```bash
+# Create a .env file with production settings
+cp .env.example .env
+# Edit .env with production values
+
+# Start all services in production mode
 docker-compose up -d
 ```
 
 This will start the following services:
-- PostgreSQL database on port 5432
-- Backend API on port 3001
-- Frontend application on port 80
+- PostgreSQL database on port 5432 (or the port specified in .env)
+- Backend API on port 3001 (or the port specified in .env)
+- Frontend application on port 3000
 
-Access the application at: http://localhost
+Access the application at: http://localhost:3000
 
 ### Checking Service Health
 
 To verify all services are running correctly:
 
-For Windows users:
-```powershell
-.\health-check.ps1
+```bash
+docker-compose ps
 ```
 
-For Linux/Mac users:
-```bash
-chmod +x ./health-check.sh
-./health-check.sh
-```
+All services should show as "running".
+
 
 ### Viewing Logs
 
 To view logs from the containers:
-
-#### Using Log Viewing Scripts
-
-For Windows users:
-```powershell
-.\logs.ps1                    # View all logs
-.\logs.ps1 -Service frontend  # View frontend logs only
-.\logs.ps1 -Service backend   # View backend logs only
-.\logs.ps1 -Service database  # View database logs only
-.\logs.ps1 -Follow            # Follow logs in real-time
-```
-
-For Linux/Mac users:
-```bash
-chmod +x ./logs.sh
-./logs.sh                     # View all logs
-./logs.sh -s frontend         # View frontend logs only
-./logs.sh -s backend          # View backend logs only
-./logs.sh -s database         # View database logs only
-./logs.sh -f                  # Follow logs in real-time
-```
-
-#### Manual Log Viewing
 
 ```bash
 docker-compose logs           # View all logs
@@ -241,17 +230,8 @@ chmod +x ./db-migrate.sh
 
 #### Seed Database with Test Data
 
-For Windows users:
-```powershell
-.\seed-db.ps1                # Seed with confirmation prompt
-.\seed-db.ps1 -Force         # Seed without confirmation
-```
-
-For Linux/Mac users:
 ```bash
-chmod +x ./seed-db.sh
-./seed-db.sh                # Seed with confirmation prompt
-./seed-db.sh -f             # Seed without confirmation
+docker-compose exec backend npm run prisma:seed
 ```
 
 This will create the following test users:
@@ -264,21 +244,11 @@ This will create the following test users:
 
 ### Docker Volume Management
 
-For Windows users:
-```powershell
-.\manage-volumes.ps1                           # List volumes
-.\manage-volumes.ps1 -Action create -VolumeName complaint_db_data  # Create volume
-.\manage-volumes.ps1 -Action delete -VolumeName complaint_db_data  # Delete volume
-.\manage-volumes.ps1 -Action prune            # Remove all unused volumes
-```
-
-For Linux/Mac users:
 ```bash
-chmod +x ./manage-volumes.sh
-./manage-volumes.sh                         # List volumes
-./manage-volumes.sh -a create -v complaint_db_data  # Create volume
-./manage-volumes.sh -a delete -v complaint_db_data  # Delete volume
-./manage-volumes.sh -a prune                # Remove all unused volumes
+docker volume ls                         # List volumes
+docker volume create postgres-data        # Create volume
+docker volume rm postgres-data           # Delete volume
+docker volume prune                      # Remove all unused volumes
 ```
 
 ### Troubleshooting
@@ -286,6 +256,45 @@ chmod +x ./manage-volumes.sh
 #### NPM Dependency Issues
 
 If you encounter npm dependency conflicts during the build process, the Dockerfiles are configured to use `--legacy-peer-deps` flag to resolve these issues. This is particularly helpful for TypeScript and ESLint related dependencies.
+
+#### Backend Build Issues
+
+If you encounter an error like `Error: Cannot find module '/app/dist/main'`, it means the NestJS build process didn't complete successfully. Try these solutions:
+
+1. Rebuild the backend container:
+   ```bash
+   docker-compose build --no-cache backend
+   ```
+
+2. Check the build logs for errors:
+   ```bash
+   docker-compose logs backend
+   ```
+
+3. Verify the dist directory is created during the build process. The Dockerfile includes a verification step that will show the contents of the dist directory.
+
+#### Database Connection Issues
+
+If the backend can't connect to the database, check the following:
+
+1. Ensure the PostgreSQL container is running and healthy:
+   ```bash
+   docker-compose ps
+   ```
+
+2. Verify the DATABASE_URL environment variable in docker-compose.yml matches your PostgreSQL configuration.
+
+3. The backend service uses a wait-for-it script to ensure the database is ready before starting. If there are still connection issues, you may need to increase the retry count in the health check configuration.
+
+#### Container Startup Order
+
+The docker-compose.yml file is configured with health checks and dependencies to ensure services start in the correct order:
+
+1. PostgreSQL database starts first
+2. Backend service waits for the database to be healthy before starting
+3. Frontend service waits for the backend to be healthy before starting
+
+If you're experiencing issues with service startup order, check the health check configurations in docker-compose.yml.
 
 ## Test Users
 
@@ -298,6 +307,26 @@ The application is seeded with the following test users:
 - **Reviewer**: 
   - Email: reviewer@example.com
   - Password: password123
+
+## Docker Best Practices
+
+### Optimization Tips
+
+1. **Reduce Image Size**:
+   - The Dockerfiles use Alpine-based images to minimize size
+   - Use multi-stage builds for the frontend to keep the production image small
+   - Consider using Docker BuildKit for faster builds: `DOCKER_BUILDKIT=1 docker-compose build`
+
+2. **Performance Tuning**:
+   - Adjust PostgreSQL configuration for better performance in production
+   - Consider using volume mounts for development to enable hot reloading
+   - For production, use Docker Swarm or Kubernetes for better scaling and management
+
+3. **Security Considerations**:
+   - Never store sensitive information like JWT_SECRET in the docker-compose.yml file
+   - Use Docker secrets or environment files for sensitive information
+   - Run containers with non-root users when possible
+   - Regularly update base images to get security patches
 
 ## License
 
