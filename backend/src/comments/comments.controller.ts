@@ -12,6 +12,7 @@ import {
   ParseIntPipe,
   HttpStatus,
   HttpCode,
+  Optional,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -35,28 +36,34 @@ export class CommentsController {
   @Roles('REVIEWER')
   @UseGuards(RolesGuard)
   findAll(
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.commentsService.findAll(page, limit);
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    return this.commentsService.findAll(pageNum, limitNum);
   }
 
   @Get('complaint/:complaintId')
   findByComplaintId(
     @Param('complaintId', ParseIntPipe) complaintId: number,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.commentsService.findByComplaintId(complaintId, page, limit);
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    return this.commentsService.findByComplaintId(complaintId, pageNum, limitNum);
   }
 
   @Get('my-comments')
   findMyComments(
     @Request() req,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
   ) {
-    return this.commentsService.findByUserId(req.user.userId, page, limit);
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    return this.commentsService.findByUserId(req.user.userId, pageNum, limitNum);
   }
 
   @Get(':id')

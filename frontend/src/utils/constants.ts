@@ -36,7 +36,8 @@ export const API_ENDPOINTS = {
   },
   COMMENTS: {
     BASE: '/comments',
-    BY_COMPLAINT: '/comments/complaint'
+    BY_COMPLAINT: '/comments/complaint',
+    MY_COMMENTS: '/comments/my-comments',
   }
 } as const;
 
