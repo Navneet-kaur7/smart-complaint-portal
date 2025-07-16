@@ -6,8 +6,12 @@ class CommentService {
   async getCommentsByComplaintId(complaintId: number): Promise<Comment[]> {
     try {
       console.log('Fetching comments for complaint:', complaintId);
-      // Convert complaintId to string to ensure it's properly formatted in the URL
-      const endpoint = `${API_ENDPOINTS.COMMENTS.BY_COMPLAINT}/${complaintId.toString()}`;
+      // Ensure complaintId is a number before making the request
+      const numericComplaintId = Number(complaintId);
+      if (isNaN(numericComplaintId)) {
+        throw new Error('Invalid complaint ID');
+      }
+      const endpoint = `${API_ENDPOINTS.COMMENTS.BY_COMPLAINT}/${numericComplaintId}`;
       const response = await apiService.get<{comments: Comment[], pagination: any}>(endpoint);
       console.log('Comments fetched:', response);
       return response.comments || [];

@@ -10,7 +10,6 @@ interface AuthState {
   token: string | null;
   loading: boolean;
   error: string | null;
-  message: string | null;
 }
 
 type AuthAction =
@@ -22,17 +21,13 @@ type AuthAction =
   | { type: 'REGISTER_SUCCESS' }
   | { type: 'REGISTER_FAILURE'; payload: string }
   | { type: 'CLEAR_ERROR' }
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'FORGOT_PASSWORD_START' }
-  | { type: 'FORGOT_PASSWORD_SUCCESS'; payload: string }
-  | { type: 'FORGOT_PASSWORD_FAILURE'; payload: string };
+  | { type: 'SET_LOADING'; payload: boolean };
 
 const initialState: AuthState = {
   user: null,
   token: null,
   loading: true,
   error: null,
-  message: null,
 };
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
@@ -61,12 +56,6 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return { ...state, error: null };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
-    case 'FORGOT_PASSWORD_START':
-      return { ...state, loading: true, error: null, message: null };
-    case 'FORGOT_PASSWORD_SUCCESS':
-      return { ...state, loading: false, message: action.payload };
-    case 'FORGOT_PASSWORD_FAILURE':
-      return { ...state, loading: false, error: action.payload };
     default:
       return state;
   }
@@ -77,13 +66,11 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   error: string | null;
-  message: string | null;
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;
   clearError: () => void;
-  forgotPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -165,29 +152,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
   };
 
-  const forgotPassword = async (email: string): Promise<void> => {
-    dispatch({ type: 'FORGOT_PASSWORD_START' });
-    try {
-      const response = await authService.forgotPassword(email);
-      dispatch({ type: 'FORGOT_PASSWORD_SUCCESS', payload: response.message });
-    } catch (error: any) {
-      dispatch({ type: 'FORGOT_PASSWORD_FAILURE', payload: error.message });
-      throw error;
-    }
-  };
-
   const value: AuthContextType = {
     user: state.user,
     token: state.token,
     loading: state.loading,
     error: state.error,
-    message: state.message,
     isAuthenticated: !!state.user, // ✅ added
     login,
     register,
     logout,
     clearError,
-    forgotPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

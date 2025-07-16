@@ -15,7 +15,7 @@ export const useComments = (complaintId?: number | string, pollingInterval: numb
       setLoading(true);
       setError(null);
       // Ensure complaintId is a number
-      const numericComplaintId = typeof complaintId === 'string' ? parseInt(complaintId, 10) : complaintId;
+      const numericComplaintId = Number(complaintId);
       
       if (isNaN(numericComplaintId)) {
         throw new Error('Invalid complaint ID');
@@ -39,7 +39,7 @@ export const useComments = (complaintId?: number | string, pollingInterval: numb
       setError(null);
       
       // Ensure complaintId is a number
-      const numericComplaintId = typeof complaintId === 'string' ? parseInt(complaintId, 10) : complaintId;
+      const numericComplaintId = Number(complaintId);
       
       if (isNaN(numericComplaintId)) {
         throw new Error('Invalid complaint ID');
@@ -94,6 +94,7 @@ export const useComments = (complaintId?: number | string, pollingInterval: numb
         clearInterval(pollingTimerRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complaintId, pollingInterval]);
 
   return {

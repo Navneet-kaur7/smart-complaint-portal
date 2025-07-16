@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Comment } from '../../types/complaint.types';
 import { useComments } from '../../hooks/useComments';
 import { useAuth } from '../../hooks/useAuth';
 import { validateComment } from '../../utils/helpers';
@@ -11,17 +10,20 @@ interface CommentSectionProps {
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({ complaintId }) => {
-  // Ensure complaintId is a valid number
-  const numericComplaintId = typeof complaintId === 'string' ? parseInt(complaintId, 10) : complaintId;
-  
-  if (isNaN(numericComplaintId)) {
-    return <div className="comment-error">Invalid complaint ID</div>;
-  }
   const [newComment, setNewComment] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { comments, loading, addComment, deleteComment, refetch } = useComments(complaintId, 5000); // Poll every 5 seconds
+  
+  // Ensure complaintId is a valid number
+  const numericComplaintId = Number(complaintId);
+  const isValidComplaintId = !isNaN(numericComplaintId);
+  
+  const { comments, loading, addComment, deleteComment, refetch } = useComments(isValidComplaintId ? numericComplaintId : 0, 5000); // Poll every 5 seconds
   const { user } = useAuth();
   const isReviewer = user?.role === UserRole.REVIEWER;
+  
+  if (!isValidComplaintId) {
+    return <div className="comment-error">Invalid complaint ID</div>;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

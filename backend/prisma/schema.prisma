@@ -25,10 +25,10 @@ model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
-  fullName  String   @map("full_name")
+  fullName  String
   role      UserRole @default(CONSUMER)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   complaints Complaint[]
@@ -42,9 +42,9 @@ model Complaint {
   title       String
   description String
   status      ComplaintStatus @default(PENDING)
-  consumerId  Int             @map("consumer_id")
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
+  consumerId  Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   // Relations
   consumer User      @relation(fields: [consumerId], references: [id], onDelete: Cascade)
@@ -56,10 +56,10 @@ model Complaint {
 model Comment {
   id          Int      @id @default(autoincrement())
   content     String
-  complaintId Int      @map("complaint_id")
-  userId      Int      @map("user_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  complaintId Int
+  userId      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   complaint Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)

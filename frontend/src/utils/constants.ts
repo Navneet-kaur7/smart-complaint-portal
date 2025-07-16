@@ -22,8 +22,7 @@ export const API_ENDPOINTS = {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
     PROFILE: '/auth/profile',
-    LOGOUT: '/auth/logout',
-    FORGOT_PASSWORD: '/auth/forgot-password'
+    LOGOUT: '/auth/logout'
   },
   USERS: {
     PROFILE: '/users/profile',

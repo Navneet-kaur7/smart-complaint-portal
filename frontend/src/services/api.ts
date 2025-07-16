@@ -73,7 +73,8 @@ class ApiService {
           localStorage.removeItem('access_token');
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user');
-          // window.location.href = '/login';
+          window.location.href = '/login';
+          alert("Authorization failed!");
         }
         return Promise.reject(error);
       }

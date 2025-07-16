@@ -11,10 +11,6 @@ interface RegisterResponse {
   message: string;
 }
 
-interface ForgotPasswordResponse {
-  message: string;
-}
-
 class AuthService {
 async login(credentials: LoginCredentials): Promise<AuthResponse> {
   try {
@@ -43,18 +39,6 @@ async login(credentials: LoginCredentials): Promise<AuthResponse> {
     }
   }
 
-  async forgotPassword(email: string): Promise<ForgotPasswordResponse> {
-    try {
-      const response = await apiService.post<ForgotPasswordResponse>(
-        API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
-        { email }
-      );
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async verifyToken(token: string): Promise<User> {
     try {
       const response = await apiService.get<{ user: User }>(
@@ -71,8 +55,7 @@ async login(credentials: LoginCredentials): Promise<AuthResponse> {
     }
   }
 
-  // Note: The backend doesn't have a refresh token endpoint
-  // This method is kept for future implementation
+  
   async refreshToken(): Promise<AuthResponse> {
     try {
       // For now, we'll just verify the existing token

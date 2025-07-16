@@ -98,7 +98,7 @@ const ComplaintCard: React.FC<ComplaintCardProps> = ({ complaint, onStatusUpdate
       </div>
 
       {showComments && (
-        <CommentSection complaintId={complaint.id.toString()} />
+        <CommentSection complaintId={complaint.id} />
       )}
     </div>
   );
