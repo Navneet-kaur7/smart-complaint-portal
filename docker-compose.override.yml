@@ -1,0 +1,17 @@
+# Development overrides for docker-compose.yml
+# This file is automatically merged with docker-compose.yml when running docker-compose commands
+
+services:
+  # Backend API with development settings
+  backend:
+    build:
+      target: production # Use the production stage
+    environment:
+      NODE_ENV: production
+    # Remove volume mounts to use the built dist directory
+
+  # Frontend React App with development settings
+  frontend:
+    # Use the production configuration
+    ports:
+      - "80:80" # Use the production port

@@ -1,4 +1,5 @@
-FROM node:18-alpine
+# Stage 1: Build the application
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
@@ -6,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
@@ -14,8 +15,21 @@ COPY . .
 # Build the app
 RUN npm run build
 
-# Expose port
-EXPOSE 3000
+# Stage 2: Serve the application with Nginx
+FROM nginx:alpine
 
-# Start the app
-CMD ["npm", "start"]
+# Copy built assets from the build stage
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Copy custom nginx config if needed
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:80 || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
